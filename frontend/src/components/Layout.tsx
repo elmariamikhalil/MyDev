@@ -168,11 +168,7 @@ export const Sidebar: React.FC = () => {
     { label: 'Mentors',   path: '/mentors',   icon: <I.Group /> },
   ];
 
-  const friends = [
-    { name: 'Padhang Satrio', status: 'Mentor', idx: 1 },
-    { name: 'Bayu Salto',     status: 'Mentor', idx: 4 },
-    { name: 'Leonardo Samsul',status: 'Mentor', idx: 3 },
-  ];
+
 
   return (
     <aside className="sidebar">
@@ -223,18 +219,7 @@ export const Sidebar: React.FC = () => {
         </nav>
       )}
 
-      <div style={{ marginTop: '1.5rem' }}>
-        <p className="sidebar-section-label">Friends</p>
-        {friends.map((f, i) => (
-          <div key={i} className="friend-item">
-            <ColorAvatar name={f.name} size={32} idx={f.idx} />
-            <div className="friend-info">
-              <div className="friend-name">{f.name}</div>
-              <div className="friend-status">{f.status}</div>
-            </div>
-          </div>
-        ))}
-      </div>
+
 
       <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
         <p className="sidebar-section-label" style={{ marginTop: 0 }}>Settings</p>

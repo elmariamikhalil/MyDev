@@ -79,6 +79,7 @@ body {
   height: 100vh;
   z-index: 50;
   box-shadow: var(--shadow-sm);
+  overflow-y: auto;
 }
 
 .sidebar-logo {
