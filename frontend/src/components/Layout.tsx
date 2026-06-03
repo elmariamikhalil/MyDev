@@ -82,7 +82,7 @@ const NotificationDropdown: React.FC<{ onClose: () => void }> = ({ onClose }) =>
           </div>
         )}
         {notes.map(n => (
-          <div key={n.id} onClick={async () => { await api.put(`/users/notifications/${n.id}/read`); setNotes(prev => prev.map(x => x.id === n.id ? { ...x, read: 1 } : x)); setUnreadCount(prev => Math.max(0, prev - (n.read ? 0 : 1))); }} style={{ display: 'flex', gap: '0.75rem', padding: '0.875rem 1.125rem', borderBottom: '1px solid var(--border)', cursor: 'pointer', background: n.read ? 'transparent' : 'rgba(108,92,231,0.04)', transition: 'background 0.2s' }}>
+          <div key={n.id} onClick={async () => { await api.put(`/users/notifications/${n.id}/read`); setNotes(prevNotes => prevNotes.map(x => x.id === n.id ? { ...x, read: 1 } : x)); setUnreadCount((prev: number) => Math.max(0, prev - (n.read ? 0 : 1))); onClose(); }} style={{ display: 'flex', gap: '0.75rem', padding: '0.875rem 1.125rem', borderBottom: '1px solid var(--border)', cursor: 'pointer', background: n.read ? 'transparent' : 'rgba(108,92,231,0.04)', transition: 'background 0.2s' }}>
             <span style={{ fontSize: '1.25rem' }}>{typeIcon[n.type] || 'ℹ'}</span>
             <div style={{ flex: 1 }}>
               <div style={{ fontWeight: n.read ? 500 : 700, fontSize: '0.8125rem', marginBottom: '0.125rem' }}>{n.title}</div>

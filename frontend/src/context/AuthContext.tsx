@@ -5,6 +5,7 @@ interface User {
   id: number;
   username: string;
   targetLanguage: string;
+  role?: string;
 }
 
 interface AuthContextType {
