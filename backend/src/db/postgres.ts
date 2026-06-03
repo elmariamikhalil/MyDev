@@ -1,0 +1,12 @@
+import { Pool } from 'pg';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgres://postgres:Blackraven-11@@localhost:5432/mydeb_db',
+});
+
+export const query = (text: string, params?: any[]) => pool.query(text, params);
+export const getClient = () => pool.connect();
+export default pool;

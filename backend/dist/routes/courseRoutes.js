@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const courseController_1 = require("../controllers/courseController");
+const authMiddleware_1 = require("../middleware/authMiddleware");
+const router = (0, express_1.Router)();
+router.use(authMiddleware_1.authenticateToken);
+router.get('/', courseController_1.getCourses);
+router.get('/search', courseController_1.search);
+router.get('/mentors', courseController_1.getMentors);
+router.post('/mentors/:mentorId/follow', courseController_1.followMentor);
+router.get('/:courseId', courseController_1.getCourseDetails);
+router.get('/:courseId/progress', courseController_1.getCourseProgress);
+router.post('/:courseId/enroll', courseController_1.enrollInCourse);
+router.get('/:courseId/certificate', courseController_1.getCertificate);
+router.get('/lesson/:lessonId', courseController_1.getLesson);
+router.post('/lesson/:lessonId/quiz', courseController_1.submitQuiz);
+router.post('/lesson/:lessonId/complete', courseController_1.completeLesson);
+exports.default = router;
+//# sourceMappingURL=courseRoutes.js.map
