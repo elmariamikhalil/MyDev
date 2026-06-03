@@ -13,7 +13,7 @@ interface AppContextType {
   addToast: (message: string, type?: ToastType) => void;
   removeToast: (id: string) => void;
   unreadCount: number;
-  setUnreadCount: (n: number) => void;
+  setUnreadCount: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
