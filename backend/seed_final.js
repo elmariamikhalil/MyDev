@@ -9,6 +9,25 @@ async function run() {
   try {
     console.log('--- Starting Final Seed Script ---');
 
+    // 0. Ensure tables exist
+    console.log('0. Ensuring learning paths tables exist...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS learning_paths (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        thumbnail_url TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      
+      CREATE TABLE IF NOT EXISTS learning_path_courses (
+        path_id INTEGER NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
+        course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+        order_index INTEGER NOT NULL,
+        PRIMARY KEY (path_id, course_id)
+      );
+    `);
+
     // 1. Convert all existing mentors to students
     console.log('1. Removing existing mentors...');
     await pool.query(`UPDATE users SET role = 'student' WHERE role = 'mentor'`);
