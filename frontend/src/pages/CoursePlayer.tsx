@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import confetti from 'canvas-confetti';
 import api from '../services/api';
 import { useApp } from '../context/AppContext';
@@ -330,10 +332,10 @@ const CoursePlayer: React.FC = () => {
 
             {/* Text content */}
             {lessonContent.type === 'text' && lessonContent.content && (
-              <div style={{ background: 'white', borderRadius: 24, border: '1px solid var(--border)', padding: '3rem', marginBottom: '3rem', boxShadow: '0 8px 32px rgba(0,0,0,0.03)' }}>
-                {lessonContent.content.split('\n').filter((l: string) => l.trim()).map((line: string, i: number) => (
-                  <p key={i} style={{ fontSize: '1.125rem', color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '1.25rem' }}>{line}</p>
-                ))}
+              <div className="markdown-content" style={{ fontSize: '1.0625rem', lineHeight: 1.8, color: 'var(--text-main)', marginBottom: '3rem' }}>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {lessonContent.content}
+                </ReactMarkdown>
               </div>
             )}
 
