@@ -26,6 +26,9 @@ async function run() {
         order_index INTEGER NOT NULL,
         PRIMARY KEY (path_id, course_id)
       );
+
+      ALTER TABLE certificates ALTER COLUMN course_id DROP NOT NULL;
+      ALTER TABLE certificates ADD COLUMN IF NOT EXISTS path_id INTEGER REFERENCES learning_paths(id) ON DELETE CASCADE;
     `);
 
     // 1. Convert all existing mentors to students
