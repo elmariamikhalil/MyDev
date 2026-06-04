@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import confetti from 'canvas-confetti';
@@ -22,9 +22,12 @@ interface Course {
 
 const CoursePlayer: React.FC = () => {
   const { courseId } = useParams();
+  const [searchParams] = useSearchParams();
+  const pathId = searchParams.get('pathId');
   const { addToast } = useApp();
   
   const [course, setCourse] = useState<Course | null>(null);
+  const [nextCourseId, setNextCourseId] = useState<number | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [currentLessonId, setCurrentLessonId] = useState<number | null>(null);
   const [lessonContent, setLessonContent] = useState<any>(null);
@@ -39,6 +42,18 @@ const CoursePlayer: React.FC = () => {
   const [isEnrolling, setIsEnrolling] = useState(false);
 
   useEffect(() => { fetchCourseDetails(); checkCert(); }, [courseId]);
+
+  useEffect(() => {
+    if (pathId && courseId) {
+      api.get(`/paths/${pathId}`).then(res => {
+        const pathCourses = res.data.courses;
+        const currentIndex = pathCourses.findIndex((c: any) => String(c.id) === String(courseId));
+        if (currentIndex !== -1 && currentIndex < pathCourses.length - 1) {
+          setNextCourseId(pathCourses[currentIndex + 1].id);
+        }
+      }).catch(() => {});
+    }
+  }, [pathId, courseId]);
 
   const fetchCourseDetails = async () => {
     try {
@@ -415,9 +430,20 @@ const CoursePlayer: React.FC = () => {
               <button onClick={() => prevLesson && loadLesson(prevLesson.id)} disabled={!prevLesson} className="btn btn-secondary" style={{ opacity: prevLesson ? 1 : 0.4, padding: '1rem 2rem', borderRadius: 20 }}>
                 ← Previous Module
               </button>
-              <button onClick={() => nextLesson && loadLesson(nextLesson.id)} disabled={!nextLesson} className="btn btn-primary" style={{ opacity: nextLesson ? 1 : 0.4, padding: '1rem 2rem', borderRadius: 20 }}>
-                Next Module →
-              </button>
+              
+              {nextLesson ? (
+                <button onClick={() => loadLesson(nextLesson.id)} className="btn btn-primary" style={{ padding: '1rem 2rem', borderRadius: 20 }}>
+                  Next Module →
+                </button>
+              ) : nextCourseId ? (
+                <a href={`/course/${nextCourseId}?pathId=${pathId}`} className="btn btn-primary" style={{ padding: '1rem 2rem', borderRadius: 20, background: 'linear-gradient(135deg, #0984e3, #74b9ff)', border: 'none', color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+                  Next Course →
+                </a>
+              ) : (
+                <button disabled className="btn btn-primary" style={{ opacity: 0.4, padding: '1rem 2rem', borderRadius: 20 }}>
+                  Next Module →
+                </button>
+              )}
             </div>
           </div>
         ) : (

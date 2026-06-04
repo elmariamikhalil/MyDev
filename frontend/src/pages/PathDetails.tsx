@@ -105,7 +105,7 @@ const PathDetails: React.FC = () => {
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Course Sequence</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {courses.map((c: any, i: number) => (
-              <Link key={c.id} to={`/course/${c.id}`} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.5rem', background: 'white', borderRadius: 20, border: '1px solid var(--border)', textDecoration: 'none', color: 'inherit', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
+              <Link key={c.id} to={`/course/${c.id}?pathId=${path.id}`} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.5rem', background: 'white', borderRadius: 20, border: '1px solid var(--border)', textDecoration: 'none', color: 'inherit', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
                 <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-element)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-muted)' }}>
                   {i + 1}
                 </div>
