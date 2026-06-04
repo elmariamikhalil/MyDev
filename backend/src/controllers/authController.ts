@@ -69,12 +69,17 @@ export const getProfile = async (req: any, res: Response) => {
 
 export const updateProfile = async (req: any, res: Response) => {
   const userId = req.user?.id;
-  const { username, email, bio, password } = req.body;
+  const { username, email, bio, password, avatar_url } = req.body;
 
   try {
     let sql = 'UPDATE users SET username = $1, email = $2, bio = $3';
     const params: any[] = [username, email, bio];
     let index = 4;
+
+    if (avatar_url !== undefined) {
+      sql += `, avatar_url = $${index++}`;
+      params.push(avatar_url);
+    }
 
     if (password) {
       const hashedPassword = bcrypt.hashSync(password, 10);
