@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import api from '../services/api';
 
 const Settings: React.FC = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { addToast } = useApp();
   
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
@@ -54,6 +54,7 @@ const Settings: React.FC = () => {
       
       // Auto-save the new avatar URL to the database
       await api.put('/auth/profile', { ...form, avatar_url: newUrl });
+      updateUser({ avatarUrl: newUrl }); // Update global layout instantly!
       
       addToast('Image uploaded and saved successfully', 'success');
     } catch (err) {

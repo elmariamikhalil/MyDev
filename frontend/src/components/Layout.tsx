@@ -27,19 +27,29 @@ const AVATAR_COLORS = [
   'linear-gradient(135deg,#fd79a8,#e84393)',
 ];
 
-export const ColorAvatar: React.FC<{ name: string; size?: number; idx?: number; style?: React.CSSProperties }> = ({
-  name, size = 36, idx = 0, style,
-}) => (
-  <div style={{
-    width: size, height: size, borderRadius: '50%',
-    background: AVATAR_COLORS[idx % AVATAR_COLORS.length],
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    color: 'white', fontWeight: 700, fontSize: size * 0.35, flexShrink: 0,
-    ...style,
-  }}>
-    {name?.[0]?.toUpperCase()}
-  </div>
-);
+export const ColorAvatar: React.FC<{ name: string; url?: string; size?: number; idx?: number; style?: React.CSSProperties }> = ({
+  name, url, size = 36, idx = 0, style,
+}) => {
+  if (url) {
+    return (
+      <img src={url} alt={name} style={{
+        width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, ...style
+      }} />
+    );
+  }
+
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: '50%',
+      background: AVATAR_COLORS[idx % AVATAR_COLORS.length],
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      color: 'white', fontWeight: 700, fontSize: size * 0.35, flexShrink: 0,
+      ...style,
+    }}>
+      {name?.[0]?.toUpperCase()}
+    </div>
+  );
+};
 
 /* ── NOTIFICATION DROPDOWN ─────────────────────── */
 const NotificationDropdown: React.FC<{ onClose: () => void }> = ({ onClose }) => {
