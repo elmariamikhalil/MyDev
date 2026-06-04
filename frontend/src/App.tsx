@@ -13,6 +13,7 @@ import Courses from './pages/Courses';
 import LessonList from './pages/LessonList';
 import Paths from './pages/Paths';
 import PathDetails from './pages/PathDetails';
+import PathCertificate from './pages/PathCertificate';
 import Profile from './pages/Profile';
 import Mentors from './pages/Mentors';
 import TaskPage from './pages/Task';
@@ -61,6 +62,7 @@ function App() {
             <Route path="/courses"  element={<PrivateRoute><Courses /></PrivateRoute>} />
             <Route path="/paths"    element={<PrivateRoute><Paths /></PrivateRoute>} />
             <Route path="/paths/:pathId" element={<PrivateRoute><PathDetails /></PrivateRoute>} />
+            <Route path="/paths/:pathId/certificate" element={<PrivateRoute><PathCertificate /></PrivateRoute>} />
             <Route path="/profile"  element={<PrivateRoute><Profile /></PrivateRoute>} />
             <Route path="/mentors"  element={<PrivateRoute><Mentors /></PrivateRoute>} />
             <Route path="/task"     element={<PrivateRoute><TaskPage /></PrivateRoute>} />
