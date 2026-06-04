@@ -104,12 +104,30 @@ const PathDetails: React.FC = () => {
         <div>
           <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Course Sequence</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {courses.map((c: any, i: number) => (
-              <Link key={c.id} to={`/course/${c.id}?pathId=${path.id}`} style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.5rem', background: 'white', borderRadius: 20, border: '1px solid var(--border)', textDecoration: 'none', color: 'inherit', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }} onMouseOver={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseOut={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--bg-element)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-muted)' }}>
-                  {i + 1}
+            {courses.map((c: any, i: number) => {
+              const isLocked = c.locked;
+              return (
+              <Link 
+                key={c.id} 
+                to={isLocked ? '#' : `/course/${c.id}?pathId=${path.id}`} 
+                onClick={(e) => { if(isLocked) e.preventDefault(); }}
+                style={{ 
+                  display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '1.5rem', 
+                  background: isLocked ? 'var(--bg-element)' : 'white', 
+                  borderRadius: 20, border: '1px solid var(--border)', 
+                  textDecoration: 'none', color: 'inherit', 
+                  transition: 'transform 0.2s, box-shadow 0.2s', 
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  opacity: isLocked ? 0.7 : 1,
+                  cursor: isLocked ? 'not-allowed' : 'pointer'
+                }} 
+                onMouseOver={e => !isLocked && (e.currentTarget.style.transform = 'translateY(-2px)')} 
+                onMouseOut={e => !isLocked && (e.currentTarget.style.transform = 'translateY(0)')}
+              >
+                <div style={{ width: 48, height: 48, borderRadius: '50%', background: isLocked ? 'transparent' : 'var(--bg-element)', border: isLocked ? '2px dashed var(--border)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-muted)' }}>
+                  {isLocked ? '🔒' : i + 1}
                 </div>
-                <div style={{ width: 120, height: 80, borderRadius: 12, overflow: 'hidden', background: 'var(--bg-element)', flexShrink: 0 }}>
+                <div style={{ width: 120, height: 80, borderRadius: 12, overflow: 'hidden', background: 'var(--bg-element)', flexShrink: 0, filter: isLocked ? 'grayscale(100%)' : 'none' }}>
                   {c.thumbnail_url && <img src={c.thumbnail_url} alt={c.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -117,14 +135,16 @@ const PathDetails: React.FC = () => {
                   <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{c.difficulty} • {c.language}</div>
                 </div>
                 <div>
-                  {c.is_enrolled ? (
+                  {isLocked ? (
+                    <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-muted)', background: 'transparent', padding: '0.5rem 1rem', borderRadius: 8, border: '1px dashed var(--border)' }}>Locked</span>
+                  ) : c.is_enrolled ? (
                     <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--primary)', background: 'var(--primary-soft)', padding: '0.5rem 1rem', borderRadius: 8 }}>Continue</span>
                   ) : (
                     <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-muted)', border: '1px solid var(--border)', padding: '0.5rem 1rem', borderRadius: 8 }}>View Details</span>
                   )}
                 </div>
               </Link>
-            ))}
+            )})}
           </div>
         </div>
       </div>

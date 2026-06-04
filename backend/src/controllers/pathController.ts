@@ -26,12 +26,28 @@ export const getPathDetails = async (req: AuthRequest, res: Response) => {
 
     const coursesRes = await query(`
       SELECT c.*, lpc.order_index,
-        (SELECT COUNT(*)::int FROM enrollments WHERE user_id = $1 AND course_id = c.id) as is_enrolled
+        (SELECT COUNT(*)::int FROM enrollments WHERE user_id = $1 AND course_id = c.id) as is_enrolled,
+        (SELECT COUNT(*)::int FROM lessons WHERE course_id = c.id) as total_course_lessons,
+        (SELECT COUNT(*)::int FROM user_progress up 
+         JOIN lessons l ON l.id = up.lesson_id 
+         WHERE l.course_id = c.id AND up.user_id = $1 AND up.completed = true) as completed_course_lessons
       FROM learning_path_courses lpc
       JOIN courses c ON c.id = lpc.course_id
       WHERE lpc.path_id = $2
       ORDER BY lpc.order_index ASC
     `, [userId, pathId]);
+
+    const courses = coursesRes.rows.map((course, index, arr) => {
+      let locked = false;
+      if (index > 0) {
+        const prevCourse = arr[index - 1];
+        // Lock this course if the previous course is not 100% completed
+        if (prevCourse.total_course_lessons === 0 || prevCourse.completed_course_lessons < prevCourse.total_course_lessons) {
+          locked = true;
+        }
+      }
+      return { ...course, locked };
+    });
 
     // Check if path is fully completed by checking if all lessons in all courses are completed
     let pathCompleted = false;
@@ -73,7 +89,7 @@ export const getPathDetails = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    res.json({ path, courses: coursesRes.rows, pathCompleted, certEligible, certificate });
+    res.json({ path, courses, pathCompleted, certEligible, certificate });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }

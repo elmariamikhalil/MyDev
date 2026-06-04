@@ -11,9 +11,9 @@ async function run() {
     console.log('--- Starting Deep Content Seed Script ---');
 
     // 0. Ensure tables exist
-    console.log('0. Ensuring paths tables exist...');
+    console.log('0. Ensuring learning_paths tables exist...');
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS paths (
+      CREATE TABLE IF NOT EXISTS learning_paths (
         id SERIAL PRIMARY KEY,
         title VARCHAR(255) NOT NULL,
         description TEXT,
@@ -21,15 +21,18 @@ async function run() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
       
-      CREATE TABLE IF NOT EXISTS path_courses (
-        path_id INTEGER NOT NULL REFERENCES paths(id) ON DELETE CASCADE,
+      CREATE TABLE IF NOT EXISTS learning_path_courses (
+        path_id INTEGER NOT NULL REFERENCES learning_paths(id) ON DELETE CASCADE,
         course_id INTEGER NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
         order_index INTEGER NOT NULL,
         PRIMARY KEY (path_id, course_id)
       );
 
       ALTER TABLE certificates ALTER COLUMN course_id DROP NOT NULL;
-      ALTER TABLE certificates ADD COLUMN IF NOT EXISTS path_id INTEGER REFERENCES paths(id) ON DELETE CASCADE;
+      ALTER TABLE certificates ADD COLUMN IF NOT EXISTS path_id INTEGER REFERENCES learning_paths(id) ON DELETE CASCADE;
+
+      -- Add quiz column to lessons if it doesn't exist
+      ALTER TABLE lessons ADD COLUMN IF NOT EXISTS quiz JSONB;
     `);
 
     // 1. Convert all existing mentors to students
@@ -60,7 +63,7 @@ async function run() {
 
     // Delete existing paths to start fresh with new content
     console.log('Cleaning up old paths and seed courses to prevent duplicates...');
-    await pool.query(`DELETE FROM paths WHERE title = 'Zero to Hero: Web Developer'`);
+    await pool.query(`DELETE FROM learning_paths WHERE title = 'Zero to Hero: Web Developer'`);
     
     // Wipe duplicate seed courses specifically
     await pool.query(`
@@ -79,7 +82,7 @@ async function run() {
     console.log('4. Seeding Beginner Path...');
     
     const pathRes = await pool.query(`
-      INSERT INTO paths (title, description, thumbnail_url) 
+      INSERT INTO learning_paths (title, description, thumbnail_url) 
       VALUES ($1, $2, $3) RETURNING id
     `, [
       'Zero to Hero: Web Developer', 
@@ -96,11 +99,11 @@ async function run() {
       return res.rows[0].id;
     };
 
-    const createLesson = async (cId, title, content, type, order) => {
+    const createLesson = async (cId, title, content, type, order, quiz) => {
       const res = await pool.query(`
-        INSERT INTO lessons (course_id, title, content, type, order_index) 
-        VALUES ($1, $2, $3, $4, $5) RETURNING id
-      `, [cId, title, content, type, order]);
+        INSERT INTO lessons (course_id, title, content, type, order_index, quiz) 
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
+      `, [cId, title, content, type, order, quiz ? JSON.stringify(quiz) : null]);
       return res.rows[0].id;
     };
 
@@ -124,7 +127,18 @@ Think about making a cup of coffee:
 4. Wait for it to drip.
 5. Serve in a cup.
 
-If you skip a step, or do them out of order (like pouring water before boiling it), the result is ruined. Computers are the same way—they do exactly what you tell them, in the exact order you tell them!`, 'text', 1);
+If you skip a step, or do them out of order (like pouring water before boiling it), the result is ruined. Computers are the same way—they do exactly what you tell them, in the exact order you tell them!`, 'text', 1,
+{
+  question: "What happens if a computer skips a step in an algorithm?",
+  options: [
+    "It automatically figures out the missing step.",
+    "The program fails or produces incorrect results.",
+    "It asks the user what to do next.",
+    "Nothing, computers don't need steps."
+  ],
+  answer: "The program fails or produces incorrect results.",
+  explanation: "Computers are very literal! They follow instructions exactly. If a step is missing, the computer cannot \"guess\" what you meant."
+});
 
     await createLesson(algoId, '2. Variables and Data', 
 `# Variables: The Brain's Memory
@@ -136,7 +150,18 @@ To solve problems, algorithms need to remember things. We store these "things" i
 2. **Text (Strings)**: \`name = "Alice"\`
 3. **Booleans (True/False)**: \`is_raining = True\`
 
-When your algorithm needs to check if it should bring an umbrella, it looks inside the \`is_raining\` box!`, 'text', 2);
+When your algorithm needs to check if it should bring an umbrella, it looks inside the \`is_raining\` box!`, 'text', 2,
+{
+  question: "Which of the following data types would you use to store whether a user is logged in or not?",
+  options: [
+    "Number",
+    "String",
+    "Boolean",
+    "Algorithm"
+  ],
+  answer: "Boolean",
+  explanation: "A Boolean represents a simple True/False state, perfect for representing whether someone is logged in or out."
+});
 
     await createLesson(algoId, '3. Conditional Logic (If/Else)', 
 `# Making Decisions
@@ -151,7 +176,18 @@ if (is_raining) {
 }
 \`\`\`
 
-This is the foundation of all application logic. Every button you click on a website uses an \`if\` statement to decide what to do next!`, 'text', 3);
+This is the foundation of all application logic. Every button you click on a website uses an \`if\` statement to decide what to do next!`, 'text', 3,
+{
+  question: "What does an If/Else statement allow your code to do?",
+  options: [
+    "Repeat code endlessly",
+    "Make decisions and branch logic",
+    "Store information in a box",
+    "Style a web page"
+  ],
+  answer: "Make decisions and branch logic",
+  explanation: "If/Else statements are the decision-making engine of any application, allowing different code to run based on different conditions."
+});
 
     // COURSE 2: HTML
     const htmlId = await createCourse(
@@ -180,7 +216,18 @@ Every website in the world uses HTML. HTML uses **tags** to define the structure
 
 - \`<!DOCTYPE html>\` tells the browser we are using HTML5.
 - The \`<head>\` contains metadata (like the title on the browser tab).
-- The \`<body>\` contains the visible content of the page.`, 'text', 1);
+- The \`<body>\` contains the visible content of the page.`, 'text', 1,
+{
+  question: "Where do you place the visible content of your webpage?",
+  options: [
+    "Inside the <head> tag",
+    "Inside the <title> tag",
+    "Inside the <body> tag",
+    "Inside the <!DOCTYPE> tag"
+  ],
+  answer: "Inside the <body> tag",
+  explanation: "The <body> tag is the container for everything that you want users to see on your page (text, images, buttons)."
+});
 
     await createLesson(htmlId, '2. Links and Images', 
 `# Connecting the Web
@@ -196,7 +243,18 @@ To show images, we use the \`<img>\` tag. Notice it doesn't have a closing tag!
 \`\`\`html
 <img src="avatar.jpg" alt="My Profile Picture" />
 \`\`\`
-Always include the \`alt\` text for visually impaired users and SEO!`, 'text', 2);
+Always include the \`alt\` text for visually impaired users and SEO!`, 'text', 2,
+{
+  question: "Why is the 'alt' attribute important in an <img> tag?",
+  options: [
+    "It makes the image load faster",
+    "It gives the image a colored border",
+    "It provides text for screen readers and SEO",
+    "It is actually completely optional"
+  ],
+  answer: "It provides text for screen readers and SEO",
+  explanation: "Alt text describes the image for people using screen readers, and helps search engines understand what the image is about."
+});
 
     // COURSE 3: CSS
     const cssId = await createCourse(
@@ -221,7 +279,18 @@ In CSS, every HTML element is treated as a rectangular box. Understanding the Bo
   border: 1px solid black;
   margin: 15px;
 }
-\`\`\``, 'text', 1);
+\`\`\``, 'text', 1,
+{
+  question: "If you want to push two different buttons further apart from each other, which property should you use?",
+  options: [
+    "Padding",
+    "Margin",
+    "Border",
+    "Content"
+  ],
+  answer: "Margin",
+  explanation: "Margin creates transparent space *outside* the border of an element, effectively pushing other elements away."
+});
 
     await createLesson(cssId, '2. Flexbox Layouts', 
 `# Flexbox: Aligning Elements
@@ -237,7 +306,18 @@ Before Flexbox, centering elements vertically was a nightmare. Flexbox makes 1-d
 }
 \`\`\`
 
-Just by adding those 3 lines, any items inside \`.container\` will perfectly center on the screen!`, 'text', 2);
+Just by adding those 3 lines, any items inside \`.container\` will perfectly center on the screen!`, 'text', 2,
+{
+  question: "Which Flexbox property is used to align items horizontally along the main axis?",
+  options: [
+    "align-items",
+    "justify-content",
+    "flex-direction",
+    "display"
+  ],
+  answer: "justify-content",
+  explanation: "justify-content handles alignment along the main axis (which is horizontal by default)."
+});
 
     // COURSE 4: JS
     const jsId = await createCourse(
@@ -266,7 +346,18 @@ const greet = (userName) => {
 };
 
 console.log(greet("Khalil"));
-\`\`\``, 'text', 1);
+\`\`\``, 'text', 1,
+{
+  question: "What happens if you try to reassign a value to a variable declared with 'const'?",
+  options: [
+    "It works perfectly.",
+    "It converts the variable to 'let'.",
+    "It throws an error because 'const' cannot be reassigned.",
+    "It deletes the variable."
+  ],
+  answer: "It throws an error because 'const' cannot be reassigned.",
+  explanation: "Constants (const) are immutable bindings, meaning their reference cannot be changed once assigned."
+});
 
     await createLesson(jsId, '2. Array Methods', 
 `# Map, Filter, and Reduce
@@ -287,9 +378,20 @@ Keep only items that match a condition:
 const ages = [12, 18, 25, 8];
 const adults = ages.filter(age => age >= 18);
 // [18, 25]
-\`\`\``, 'text', 2);
+\`\`\``, 'text', 2,
+{
+  question: "If I want to create a new array containing only elements that match a specific condition, which method should I use?",
+  options: [
+    ".map()",
+    ".reduce()",
+    ".forEach()",
+    ".filter()"
+  ],
+  answer: ".filter()",
+  explanation: "The filter() method creates a new array with all elements that pass the test implemented by the provided function."
+});
 
-    const linkQuery = 'INSERT INTO path_courses (path_id, course_id, order_index) VALUES ($1, $2, $3)';
+    const linkQuery = 'INSERT INTO learning_path_courses (path_id, course_id, order_index) VALUES ($1, $2, $3)';
     await pool.query(linkQuery, [pathId, algoId, 1]);
     await pool.query(linkQuery, [pathId, htmlId, 2]);
     await pool.query(linkQuery, [pathId, cssId, 3]);
