@@ -49,8 +49,13 @@ const Settings: React.FC = () => {
       const res = await api.post('/upload/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setForm(prev => ({ ...prev, avatar_url: res.data.url }));
-      addToast('Image uploaded successfully', 'success');
+      const newUrl = res.data.url;
+      setForm(prev => ({ ...prev, avatar_url: newUrl }));
+      
+      // Auto-save the new avatar URL to the database
+      await api.put('/auth/profile', { ...form, avatar_url: newUrl });
+      
+      addToast('Image uploaded and saved successfully', 'success');
     } catch (err) {
       addToast('Failed to upload image', 'error');
     }
