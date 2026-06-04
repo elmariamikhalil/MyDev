@@ -59,7 +59,21 @@ async function run() {
     await pool.query(`UPDATE courses SET author = 'Khalil Elmariami'`);
 
     // Delete existing paths to start fresh with new content
+    console.log('Cleaning up old paths and seed courses to prevent duplicates...');
     await pool.query(`DELETE FROM paths WHERE title = 'Zero to Hero: Web Developer'`);
+    
+    // Wipe duplicate seed courses specifically
+    await pool.query(`
+      DELETE FROM courses 
+      WHERE title IN (
+        'Programming Logic & Algorithms', 
+        'HTML5 Masterclass', 
+        'CSS3 Styling & Layouts', 
+        'Modern JavaScript (ES6+)',
+        'HTML5 Basics',
+        'JavaScript for Web'
+      )
+    `);
 
     // 4. Seed Beginner Path
     console.log('4. Seeding Beginner Path...');
