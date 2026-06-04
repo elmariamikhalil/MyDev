@@ -139,7 +139,7 @@ const Dashboard: React.FC = () => {
           <DonutChart percent={stats.overallPercent || 0} />
 
           <div style={{ textAlign: 'center', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border)' }}>
-            <ColorAvatar name={user?.username || 'U'} size={64} idx={0} style={{ margin: '0 auto 0.875rem' }} />
+            <ColorAvatar name={user?.username || 'U'} url={user?.avatarUrl} size={64} idx={0} style={{ margin: '0 auto 0.875rem' }} />
             <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Good Morning {user?.username} 🔥</h4>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Continue your learning to achieve your target!</p>
           </div>

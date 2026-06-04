@@ -28,7 +28,7 @@ const Profile: React.FC = () => {
       <div style={{ maxWidth: 600, margin: '0 auto' }}>
         {/* Header card */}
         <div className="card" style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '1.5rem', padding: '2rem' }}>
-          <ColorAvatar name={user?.username || 'U'} size={80} idx={0} />
+          <ColorAvatar name={user?.username || 'U'} url={user?.avatarUrl} size={80} idx={0} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, fontSize: '1.375rem', marginBottom: '0.25rem' }}>{profile?.username || user?.username}</div>
             <div style={{ fontSize: '0.8125rem', color: 'var(--primary)', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'capitalize' }}>

@@ -280,7 +280,7 @@ export const TopHeader: React.FC = () => {
           {showNotifs && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
         </div>
         <Link to="/profile" className="user-profile" style={{ textDecoration: 'none' }}>
-          <ColorAvatar name={user?.username || 'U'} size={36} idx={0} />
+          <ColorAvatar name={user?.username || 'U'} url={user?.avatarUrl} size={36} idx={0} />
           <span style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-main)' }}>
             {user?.username}
           </span>
