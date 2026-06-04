@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes';
 import adminRoutes from './routes/adminRoutes';
 import pathRoutes from './routes/pathRoutes';
 import mentorRoutes from './routes/mentorRoutes';
+import uploadRoutes from './routes/uploadRoutes';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/paths', pathRoutes);
 app.use('/api/mentor', mentorRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {

@@ -9,12 +9,12 @@ const Settings: React.FC = () => {
   const { addToast } = useApp();
   
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
-  const [form, setForm] = useState({ username: '', email: '', bio: '', password: '' });
+  const [form, setForm] = useState({ username: '', email: '', bio: '', password: '', avatar_url: '' });
 
   useEffect(() => {
     if (user) {
       api.get('/auth/profile').then(res => {
-        setForm({ username: res.data.username || '', email: res.data.email || '', bio: res.data.bio || '', password: '' });
+        setForm({ username: res.data.username || '', email: res.data.email || '', bio: res.data.bio || '', password: '', avatar_url: res.data.avatar_url || '' });
       }).catch(() => {});
     }
   }, [user]);
@@ -34,6 +34,25 @@ const Settings: React.FC = () => {
       setForm(prev => ({ ...prev, password: '' })); // clear pass
     } catch {
       addToast('Failed to update profile', 'error');
+    }
+  };
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      addToast('Uploading image to S3...', 'info');
+      const res = await api.post('/upload/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setForm(prev => ({ ...prev, avatar_url: res.data.url }));
+      addToast('Image uploaded successfully', 'success');
+    } catch (err) {
+      addToast('Failed to upload image', 'error');
     }
   };
 
@@ -60,6 +79,24 @@ const Settings: React.FC = () => {
 
         <div className="card">
           <h3 style={{ fontSize: '1.125rem', fontWeight: 700, marginBottom: '1.5rem' }}>Edit Profile</h3>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
+            {form.avatar_url ? (
+              <img src={form.avatar_url} alt="Avatar" style={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover' }} />
+            ) : (
+              <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'var(--primary-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontWeight: 800, fontSize: '2rem' }}>
+                {form.username?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+            )}
+            <div>
+              <label className="btn btn-outline" style={{ cursor: 'pointer', marginBottom: '0.5rem', display: 'inline-block' }}>
+                Upload Profile Picture (S3)
+                <input type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} />
+              </label>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>JPG, PNG or WEBP. Max 5MB.</div>
+            </div>
+          </div>
+
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             <div style={{ display: 'flex', gap: '1.25rem' }}>
               <div style={{ flex: 1 }}>

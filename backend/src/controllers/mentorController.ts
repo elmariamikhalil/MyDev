@@ -7,7 +7,7 @@ export const getMentorStats = async (req: AuthRequest, res: Response) => {
   const userId = req.user?.id;
   try {
     // Total Followers
-    const followersRes = await query('SELECT COUNT(*)::int as count FROM follows WHERE following_id = $1', [userId]);
+    const followersRes = await query('SELECT COUNT(*)::int as count FROM follows WHERE mentor_id = $1', [userId]);
     const followers = followersRes.rows[0].count;
 
     // Total Courses Created
@@ -44,7 +44,7 @@ export const getMentorCourses = async (req: AuthRequest, res: Response) => {
         (SELECT COUNT(*) FROM enrollments WHERE course_id = c.id) as total_students
       FROM courses c
       WHERE author = $1
-      ORDER BY c.created_at DESC
+      ORDER BY c.id DESC
     `, [username]);
     
     res.json(result.rows);

@@ -66,7 +66,26 @@ const AdminCourses: React.FC = () => {
         setIsCreating(false);
         addToast('Course created', 'success');
       }
-    } catch { addToast('Error saving course', 'error'); }
+    } catch { addToast('Error saving course', 'error');    }
+  };
+
+  const handleUploadThumbnail = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      addToast('Uploading thumbnail to S3...', 'info');
+      const res = await api.post('/upload/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setCourseForm(prev => ({ ...prev, thumbnail_url: res.data.url }));
+      addToast('Thumbnail uploaded successfully', 'success');
+    } catch (err) {
+      addToast('Failed to upload thumbnail', 'error');
+    }
   };
 
   const handleDeleteCourse = async (id: number) => {
@@ -217,7 +236,13 @@ const AdminCourses: React.FC = () => {
                   </div>
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.8125rem' }}>Thumbnail URL</label>
-                    <input value={courseForm.thumbnail_url || ''} onChange={e => setCourseForm({...courseForm, thumbnail_url: e.target.value})} className="form-input" style={{ width: '100%', padding: '0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-base)', color: 'var(--text-main)' }} />
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input value={courseForm.thumbnail_url || ''} onChange={e => setCourseForm({...courseForm, thumbnail_url: e.target.value})} className="form-input" style={{ flex: 1, padding: '0.75rem', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--bg-base)', color: 'var(--text-main)' }} placeholder="URL or upload..." />
+                    <label className="btn btn-outline" style={{ cursor: 'pointer', padding: '0.75rem 1rem', height: '100%', margin: 0 }}>
+                      Upload (S3)
+                      <input type="file" accept="image/*" onChange={handleUploadThumbnail} style={{ display: 'none' }} />
+                    </label>
+                  </div>
                   </div>
                   <button type="submit" className="btn btn-primary" style={{ width: 'fit-content', marginTop: '1rem' }}>{selectedCourse ? 'Save Changes' : 'Create Course'}</button>
                 </form>
